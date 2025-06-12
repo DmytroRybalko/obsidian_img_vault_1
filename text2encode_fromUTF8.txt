@@ -1,0 +1,462 @@
+% кНЦ ХГЛЕМЕМХИ
+%{
+вРЕМХЕ РЕЙЯРНБШУ ТЮИКНБ-ОПНРНЙНКНБ ПЮАНРШ хмя Х AHRS
+----------------------------------------------------------------------------------
+мЮ НЯМНБЕ ОПНЦПЮЛЛ Read_ISON_Data_OP_20180206.m
+нЯНАЕММНЯРХ:
+Ю) вЕМХЕ РНКЭЙН ОПНРНЙНКНБ 'P';
+нОХЯЮМХЕ ОПНРНЙНКНБ:
+ * 0  - AHRS ADC Data Output
+ * 2  - AHRS Quaternion + Orientation (БШВХРШБЮЕРЯЪ, ОН ЮКЦНПХРЛС МЕ ЯВХРЮЕРЯЪ)
+ * 3  - AHRS Calibrated Data Output
+ * 6  - AHRS Main Data Output(БШВХРШБЮЕРЯЪ, ОН ЮКЦНПХРЛС МЕ ЯВХРЮЕРЯЪ)
+ * 7  - OptoWOM              (МЕ БШВХРШБЮЕРЯЪ)
+ * 8  - CWOM                 (МЕ БШВХРШБЮЕРЯЪ)
+ * 9  - Celectial Copmpass   (МЕ БШВХРШБЮЕРЯЪ)
+ * 11 - ISON Sensors Output
+ * 12 - ISON Full Output
+ * 13 - ISON OPVT Output
+ * 14 - ISON Minimal Data(МЕ БШВХРШБЮЕРЯЪ)
+ * 15 - AHRSII Full Output
+ * 16 - AHRSII Calibrated Data
+ * 17 - AHRSII Minimal Data
+ * 18 - AHRSII NMEA(МЕ БШВХРШБЮЕРЯЪ)
+ * 19 - TSS1       (МЕ БШВХРШБЮЕРЯЪ)
+ * 20 - ISON NMEA  (МЕ БШВХРШБЮЕРЯЪ)
+ * 22 - IMU Raw Data (AHRS)
+ * 23 - IMU Clb Data (AHRS)
+ * 24 - ISON Quaternion Output
+ * 25 - AHRS-II Quaternion Output
+ * 26 - IMU Raw Data (INS)
+ * 27 - IMU Clb Data (INS)
+ * 28 - IMU NMEA
+ * 29 - ISON OPVT ext (OPVT2A) Output
+ * 30 - ISON OPVT ext_hr (OPVT2Ahr) Output
+ * 31 - ISON OPVT2AW  Output
+ * 32 - MRU-P(D)OPVTHSS Output
+ * 35 - IMU GA data
+ * 36 - ISON OPVT AD Output
+ * 37 - MRU-P(D)OPVTHSSHR Output
+ * 38 - AHRSII Calibrated HR Data
+ * 39 - IMU Orientation data format (ОНВРХ РЮЙНИ ФЕ ЙЮЙ 17 - AHRSII Minimal Data)
+ * 40 - ISON OPVT Short Output
+ * 41 - AHRS Calibrated HR Data Output
+ * 42 - ISONopvt_RawIMU(command code 0x66) НРНАПЮФЕМХЕ ДЮММШУ Х ОЯЕБДН ЛНДЕКХПНБЮМХЕ
+ * 43 - ISON OPVT GNSSext Output
+ * 45 - SPAN RawIMU Output
+ * 46 - UDD Output
+ * 47 - IMU TGA data
+ * 53 - ISON OPVT GNSSext_2 Output
+ * 54 - WHS data
+ * 70 - MRU Calibrated HR Data
+ * 72 - IMU GAM Data (0x9D)
+ * 73 - ABB Smart Winch Drive (old MRU SMC Calibrated Data)
+
+----------------------------------------------------------------------------------
+14.02.2018 - сАПЮМЮ ОНДДЕПФЙЮ ОПНРНЙНКНБ O
+          - оЕПЕМЕЯЕМН ХГ ISON_v04.m БШЯРЮБКЕМХЪ ТКЮЦНБ
+             CV_prom, CV_gps, Orientation_prom, AHRS_graphics
+          - дНАЮБКЕМЮ ОНДДЕПФЙЮ ОПНРНЙНКНБ:
+                * 22 - IMU Raw Data (AHRS)
+                * 23 - IMU Clb Data (AHRS)
+          - пЮГАНП ОПНРНЙНКНБ ВЕПЕГ ОПХГМЮЙ ParType_2 ПЕЮКХГНБЮМ Б
+             "case" ЯРПСЙРСПЕ
+          - дЮММЮЪ ОПНЦПЮЛЛЮ ЛНФЕР ХЯОНКЭГНБЮРЭЯЪ ЙЮЙ ISON_v04_20180214.m, РЮЙ Х Pointer_v30_20170204.m
+          - дКЪ ОНКМНЖЕММНИ ПЮАНРШ Pointer_v30_20170204.m МЕНАУНДХЛН Б ЬЮОЙЕ ОПНРНЙНКЮ БНЯЯРЮМНБХРЭ
+            ОЮПЮЛЕРПШ:
+               e0=5;         % йНЩТТХЖХЕМР ЙНППЕЙЖХХ Б нтй [1/c]
+               koef_Sigma_Acc=16; % йНЩТТХЖХЕМР МЕБЪГЙХ
+               koef_Sigma_Mag=16; % йНЩТТХЖХЕМР МЕБЪГЙХ
+26.02.2018 - дНАЮБКЕММН ВРЕМХЕ ОЮПЮЛЕРПНБ e0, koef_Sigma_Acc,  koef_Sigma_Mag, STD_PR_init, STD_K_init
+23.03.2018 - дНАЮБКЕМ ПЮГАНП ТНПЛЮРНБ:
+            * P2  - AHRS Quternion + Orientation  - (БШВХРШБЮЕРЯЪ, ОН ЮКЦНПХРЛС МЕ ЯВХРЮЕРЯЪ)
+            * P6  - AHRS Main Data Output	        - (БШВХРШБЮЕРЯЪ, ОН ЮКЦНПХРЛС МЕ ЯВХРЮЕРЯЪ)
+            * P28 - IMU NMEA
+            * P40 - ISON OPVT Short Output
+            * P45 - SAPN RawIMU Output
+            * P46 - UDD Output
+          - сАПЮМШ ТКЮЦХ P_BAR, Ph_bar_prom. нАУНД НРЯСРЯРБХЪ ДЮММШУ
+             ОНЯРПНХКХ МЮ ХЯОНКЭГНБЮМХХ ХМТНПЛЮЖХХ Н МЮКХВХХ ЛЮЯЯХБНБ Б ОЮЛЪРХ - exist('ХЛЪ ЛЮЯЯХБЮ').
+          - сДЮКЕМ switch (ParType_s)  case {'P'} - ДПСЦХУ РХОНБ ОПНРНЙНКНБ МЕР
+          - сАПЮМН ЛМНФЕЯРБЕММНЕ НОПЕДЕКЕМХЕ ОЮПЮЛЕРПЮ Ndata.
+          - пЮГАНП ЯКЕДСЧЫХУ ДЮММШУ ОЕПЕМЕЯЕМ ХГ ISON_v04.m Б ЩРС ОПНЦПЮЛЛС:
+              * K_prom, T_prom, G_prom - СЦКНБ
+              * Udus,   Uaks,   Umag   - ЯШПШУ ЯХЦМЮКНБ ДЮРВХЙНБ
+              * DUS, 	  Aks, 	  Mag    - ЙЮКХАПНБЮММШУ ЯХЦМЮКНБ ДЮРВХЙНБ
+				* Shock, Shot
+ 			    * Temper_prom            - 7 РЕЛОЕПЮРСП ДЮРВХЙНБ Utermo
+              * Termo                  - 1 ЙЮКХАПНБЮММЮЪ РЕЛОЕПЮРСПЮ
+              * Volt_prom              - бУНДМНЕ Х БШУНДМНЕ МЮОПЪФЕМХЕ  V_inp, V_stab
+              * USW
+          - оНАХРМШИ ЮМЮКХГ ЛЮЯЯХБНБ ext_sol_gps, Galileo_BeiDou,Glonass_GPS  ХГ ОПНРНЙНКЮ P11 - ISON Sensors Output
+            ОЕПЕМЕЯКХ ОНЯКЕ ПЮГАНПЮ БЯЕУ ОПНРНЙНКНБ
+          - дНАЮБКЕМ ПЮЯВЕР latency_ms_pos, latency_ms_vel ДКЪ UDD ТНПЛЮРЮ
+          - сАПЮМЮ МЕНАУНДХЛНЯРЭ ХМХЖХЮКХГЮЖХХ ЛЮЯЯХБНБ
+               Ut=zeros(1,Ndata);  Up=zeros(1,Ndata);
+               solnSVs_gps=zeros(1,Ndata);  New_gps=zeros(1,Ndata);
+          - бНЯРЮМНБКЕМЮ ОНДДЕПФЙЮ ДЮММШУ ГЮОХЯЮММШУ Б ТНПЛЮРЕ Sensors data ====
+26.03.2018 - дКЪ ЙНБЮПХЮЖХИ нтй ОН ЙННПДХМЮРЮЛ P_cord_prom ЯДЕКЮМ ОЕПЕБНД ХГ ЯЛ Б Л
+03.04.2018 - оПХ ПЮГАНПЕ ДЮММШУ ТНПЛЮРЮ UDD ms_gps ГЮДЮЕРЯЪ ОН ОПХНПХРЕРМНЯРХ РЮИЛЯРЕЛОНБ:
+            GPS_IMU_Time, GPS_INS_Time_Round, GPS_INS_Time(Б ГЮБХЯХЛНЯРХ НР МЮКХВХЪ, НР МХГЬЕЦН Й БШЯЬЕЛС)
+11.04.2018 - хЯОПЮБКЕМЮ НЬХАЙЮ Б ПЮГАНПЕ ТНПЛЮРЮ UDD: ОПХ ОПХЯБНЕМХХ ms_gps РНВМНЦН ГМЮВЕМХЪ GPS_INS_Time ХКХ GPS_IMU_Time,
+            ХУ МЮДН СЛМНФЮРЭ МЮ 1000 ДКЪ ОЕПЕБНДЮ ДЮММШУ Б ЛХКХЯЕЙСМДШ
+25.04.2018 - дНАЮБКЕМ ПЮГАНП МНБНЦН ОЮПЮЛЕРПЮ STDk_aux [ЦПЮД] - яйн ЬСЛЮ ДКЪ БЯОНЛНЦЮРЕКЭМНЦН ХГЛЕПХРЕКЪ ЙСПЯЮ	(люцмхрнлерпш (ЕЯКХ НМХ ЕЯРЭ) ХКХ VG )
+          - пЕЮКХГНБЮМ НАУНД МСКЕИ Б ОЮПЮЛЕРПЮУ STDk_aux, STD_PR_init, STD_K_init.
+02.05.2018 - сАПЮМ НАУНД МСКЕИ Б ОЮПЮЛЕРПЮУ  STD_PR_init, STD_K_init - БЛЕЬХБЮЕЛЯЪ Б нтй ДКЪ AHRS10 Х ОПНЦПЮЛЛС Pointer_v31.m
+17.05.2018 - б ТНПЛЮРЕ P31 - ISON OPVT2AW  Output	АШКХ
+            ОЕПЕОСРЮМШ ОНКЪ  GPS_Week Х  GNSS_info_1. хЯОПЮБКЕМН.
+30.05.2018 - дНАЮБКЕМ ОЮПЮЛЕРП Heave_var - БЮПХЮМР ПЮЯВЕРЮ Heave
+            0 -  ПЮЯВЕР Heave  c СЯЙНПЕМХИ ЮЙЯЕКЕПНЛЕРПНБ,
+            1 √  ПЮЯВЕР Heave Я БШЯНРШ
+12.06.2018 - дНАЮБКЕМ ОЮПЮЛЕРП T_LP_alt - ОНЯРНЪММЮЪ БПЕЛЕМХ тмв ДКЪ ЯПЕДМЕЦН ГМЮВЕМХЪ БШЯНРШ
+18.06.2018 - дНАЮБКЕМ ПЮГАНП ТНПЛЮРЮ * 47 - IMU TGA data
+16.07.2018 - б Udd ДНАЮБКЕМН ПЮГАНП DOP
+13.08.2018 - б Udd ДНАЮБКЕМН ПЮГАНП ОЮЙЕРЮ ╚Heading external╩:
+              Heading_ext, Heading_ext_STD,  Heading_ext_lat
+          - сАПЮМ ДСАКХПСЧЫХИ ПЮГАНП ОНКЪ "New_Aiding_Data"
+28.08.2018 - дНАЮБКЕМ ОЮПЮЛЕРП Ext_GNSS_receiver_protocol - БЮПХЮМР ОПНРНЙНКНБ Я БМЕЬМЕЦН ОПХЕЛМХЙЮ
+04.09.2018 - б Udd ДНАЮБКЕМН ПЮГАНП UTC Х GNSS Position and Speed accuracy. б Udd ХЯОПЮБКЕМ ПЮГАНП Galileo_BeiDou.
+24.09.2018 - б Udd ДНАЮБКЕМН ПЮГАНП GDOP, PDOP Х GNSS Track over ground.
+10.10.2018 - б Udd ДНАЮБКЕМН ПЮГАНП DVL data
+          - дНАЮБКЕМ ПЮГАНП МНБНЦН ОЮПЮЛЕРПЮ DVL_frame - ЯХЯРЕЛЮ ЙННПДХМЮР DVL (0 √ Object, 1 √ East, North, Up)
+          - сАПЮМН ТНПЛХПНБЮМХЕ ЛЮЯЯХБЮ new_od. мЕ ХЯОНКЭГСЕРЯЪ Б ЮКЦНПХРЛЕ
+          - хГ ДЮММШУ ОНКЪ New_Aiding_Data ДНАЮБКЕМ ПЮГАНП 6 АХРЮ ДКЪ НОПЕДЕКЕМХЪ МНБШУ ДЮММШУ НР DVL
+22.10.2018 - бНЯЯРЮМНБКЕМЮ ОНДДЕПФЙЮ ВРЕМХЪ АНКЕЕ ЯРЮПШУ ОПНРНЙНКНБ.
+            пЮГАНП ОЮПЮЛЕРПЮ "Ext_GNSS_receiver_protocol" ОЕПЕЛЕЫЕМН Б ОПЮБХКЭМНЕ СЯКНБХЕ.
+08.01.2019 - б Udd ДНАЮБКЕМН ПЮГАНП Sensors bias, Sensors bias external Х Pitch and Roll external.
+17.01.2019 - дНАЮБКЕММЮЪ РЕЙЯРНБЮЪ ОЕПЕЛЕММЮЪ "dev_Algorithm" ДКЪ БШВХРЙХ РХОЮ ЮКЦНПХРЛЮ Б РЕЙЯРНБНЛ БХДЕ
+22.03.2019 - дНАЮБКЕМ ПЮГАНП ТНПЛЮРЮ - P53 - ISON OPVT GNSSext_2 Output
+25.03.2019 - хГЛЕМЕМ ОПХНПХРЕР РЮИЛЯРЕЛОНБ ОПХ ПЮГАНПЕ ДЮММШУ UDD - GPS_INS_Time_Round ХЛЕЕР ЯЮЛШИ
+            БШЯНЙХИ ОПХНПХРЕР ОПХ ТНПЛХПНБЮМХХ ms_gps (ЙЮЙ Б ОПНЬХБЙЕ),
+            ГЮРЕЛ GPS_INS_Time, ГЮРЕЛ GPS_IMU_Time (Б ГЮБХЯХЛНЯРХ НР МЮКХВХЪ)
+04.04.2019  - пЕЮКХГНБЮМЮ ПЮАНРЮ Я latency_pos Х latency_vel ЙНРНПШЕ ЯВХРЮЧРЯЪ Я ВЮЯРНРНИ ЖХЙКЮ БШВХЯКЕМХЪ.
+            дКЪ ЮКЦНПХРЛЮ ЙНЛОЕМЯЮЖХХ ГЮДЕПФЙХ ДЮММШУ Я GNSS, ХЯОНКЭГСЧРЯЪ ХУ ГМЮВЕМХЪ
+            latency_pos_calc, latency_vel_calc, ЯННРБЕРЯРБСЧЫХЕ ЛНЛЕМРЮЛ ОНКСВЕМХЪ КНЦНБ ОПХЕЛМХЙЮ.
+            - пЮГАНП БЕПЯХХ ОПНЬХБЙХ Х НАУНД ЯРЮПШУ БЕПЯХИ ОПНЬХБНЙ ЦДЕ МЕАШКН latency_ms_pos, latency_ms_vel, latency_ms_head
+            ОЕПЕМЕЯЕМ ХГ ISON_v04.m
+            - дНАЮБКЕМ ПЮЯВЕР latency_ms_head ДКЪ UDD ТНПЛЮРЮ
+17.04.2019 - дНАЮБКЕМЮ БШВХРЙЮ МНБНЦН ОЮПЮЛЕРПЮ Wave_sensor_mode
+           - дНАЮБКЕМ ПЮГАНП ОПНРНЙНКЮ P54 - WS data (Wave Sensor data)
+18.04.2019 - б ОПНРНЙНКЮУ, ЦДЕ ЛНФЕР ОЕПЕДЮБЮРЭЯЪ "БШЯНРЮ" ХКХ "heave" Ю РЮЙ ФЕ
+             "БЕПРХЙЮКЭМЮЪ ЯЙНПНЯРЭ" ХКХ "heave rate" ОПХ ПЮГАНПЕ
+             ЯНГДЮЧРЯЪ ЛЮЯЯХБШ Я ЯННРБЕРЯРБЕММШЛ ХЛЕМЕЛ Б ГЮБХЯХЛНЯРХ НР h_bar_mode
+             *  h_prom       - бШЯНРЮ
+             *  Heave_prom   - Heave
+			 *  Vv_prom	     - бЕПРХЙЮКЭМЮЪ ЯЙНПНЯРЭ
+			 *  V_heave_prom - V_heave
+22.04.2019 - б Udd ДНАЮБКЕМ ПЮГАНП Clock model status, Receiver clock offset from GPS reference time
+24.04.2019 - дКЪ ОПНРНЙНКЮ P54 (WS data) ХГЛЕМЕМ ПЮГАНП ЯОЕЙРПЮКЭМНИ ОКНРМНЯРХ БНКМШ.
+           - тКЮЦ AHRS_graphics=true Х ДКЪ ОПНРНЙНКЮ P54 (WS data)
+25.04.2019_1 б ОПНРНЙНКЮУ, ЦДЕ ЛНФЕР ОЕПЕДЮБЮРЭЯЪ "Pressuere" ХКХ "Significant wave height" Б РНЛ ФЕ ЯЮЛНЛ
+             ОНКЕ ОПХ ПЮГАНПЕ ЯНГДЮЧРЯЪ ЛЮЯЯХБШ Я ЯННРБЕРЯРБЕММШЛ ХЛЕМЕЛ Б ГЮБХЯХЛНЯРХ НР ТКЮЦЮ SWH_prom.
+             *  Hs_prom      - Significant wave height
+             *  P_bar_prom   - Pressure
+14.05.2019 - хЯОПЮБКЕМЮ НЬХАЙЮ. мЕ АШК СВРЕМ БЮПХЮМР ПЮГАНПЮ ЬЮОЙХ .txt ТЮИКЮ
+             Б ЯНВЕРЮМХХ UDD ТНПЛЮРЮ Х ЙНПНРЙНЦН АКНЙЮ МЮВЮКЭМНИ БШЯРЮБЙХ.
+           - оЕПЕМЕЯЕМН ТНПЛХПНБЮМХЕ ЛЮЯЯХБЮ "Utermo" ХГ "ISON_v04.m"
+17.05.2019 - дНАЮБКЕМЮ БШВХРЙЮ МНБНЦН ОЮПЮЛЕРПЮ Preset_param_var
+21.05.2019 - дНАЮБКЕМЮ БШВХРЙЮ МНБНЦН ОЮПЮЛЕРПЮ Velocity_constraints
+22.05.2019 - б Udd ДНАЮБКЕМН ПЮГАНП KF position covariance HR. еЯКХ НДМНБПЕЛЕММН АСДЕР KF position covariance
+             Х KF position covariance HR, ХЯОНКЭГНБЮРЭЯЪ АСДЕР - KF position covariance HR.
+18.06.2019 - дНАЮБКЕМЮ БШВХРЙЮ МНБШУ ОЮПЮЛЕРПНБ STD_Vh_ZUPT, STD_Vv_ZUPT
+27.06.2019 - дНАЮБКЕМЮ БШВХРЙЮ ОЮПЮЛЕРПЮ receiver_type (Б ОПНЬХБЙЕ - GNSS_type).
+             оПХ НРЯСРЯРБХХ ОЮПЮЛЕРПЮ receiver_type РХО ОПХЕЛМХЙЮ НОПЕДЕКЪЕРЯЪ ОН HeaderP_GNSS_receiver
+           - сДЮКЕМ ЯРЮПШИ ТКЮЦ Output_Data_Variant, ЙНРНПШИ АШК ОЕПЕХЛЕМНБЮМ МЮ ext_info
+             ЕЫЕ Б ОПНЦПЮЛЛЕ ISON_v01.m
+12.07.2019 - дНАЮБКЕМ ПЮГАНП TerraStar ХГ pos_type_gps.
+13.07.2019 - нРЙНППЕЙРХПНБЮМШ МЮГБЮМХЪ pos_type_gps
+23.07.2019 - дНАЮБКЕМЮ БШВХРЙЮ ОЮПЮЛЕРПЮ "COM4_data" - БЮПХЮМР ДЮММШУ ОН COM4:
+              0 - МЕР
+              1 √ ПЮАНРЮ Я НДНЛЕРПНЛ OBDII
+              2 √ БШДЮБЮРЭ GPRMC
+              3 √ БШДЮБЮРЭ IMU TGA
+              4 √ БШДЮБЮРЭ HEHDT
+              5 √ БШДЮБЮРЭ COM1 duplicated data
+              6 √ ОПХМХЛЮРЭ NMEA VTG, HDT
+04.09.2019 - дНАЮБКЕМЮ БШВХРЙЮ ОЮПЮЛЕРПЮ Encoder_ZUPT_threshold
+05.09.2019 - дНАЮБКЕМ ПЮГАНП ОПНРНЙНКЮ P39 - IMU Orientation data format
+             (ОНВРХ РЮЙНИ ФЕ ЙЮЙ P17 - AHRSII Minimal Data, МН БЛЕЯРН Altitude - Rezerved,
+              Х ЛЮЦМХРНЛЕРПШ - МСКХ)
+           - нРЙНППЕЙРХПНБЮМ ПЮГАНП ОПНРНЙНКЮ P35 - IMU GA data: БШВХРШБЮЧРЯЪ ЛЮЯЯХБШ Termo,V_inp,USW
+06.09.2019 - дНАЮБКЕМ ПЮГАНП ЦПСООШ ДЮММШУ Wave Sensor Data Б UDD(0x70-0x78);
+           - хЯОПЮБКЕМ ПЮГАНП ЯОЕЙРПНБ Wave Sensor;
+           - хОПЮБКЕМЮ НЬХАЙЮ Б БШВХРЙЕ Surge, Sway Velocity Б UUD
+           - дНАЮБКЕМЮ БШВХРЙЮ Significant Wave Height (Hs_prom)
+16.09.2019 - дНАЮБКЕМ ПЮГАНП ОЮПЮЛЕРПНБ
+             Sa_rtk             - оНПНФДЮЧЫХИ ЬСЛ ЮЙЯЕКЕПНЛЕРПЮ Б ПЕФХЛЕ RTK
+             Receiver_noise_est - хЯОНКЭГНБЮМХЕ яйн Я GNSS
+18.10.2019 - дНАЮБКЕМ ПЮГАНП ОПНРНЙНКЮ P66 - WS_PD data (Wave Sensor PD data);
+           - б ОПНРНЙНКЮУ P54 (WS data) Х P66 (WS_PD data) ЛЮЙЯХЛЮКЭМЮЪ БШЯНРЮ
+             БНКМШ  H_max ГЮЛЕМЕМЮ МЮ H_wave;
+           - б Udd ДНАЮБКЕМН ПЮГАНП H_wave, H_max Х E_wave (Wave Sensor);
+21.10.2019 - б UDD ОНКЕ 0x48 ДНАЮБКЕМ ПЮГАНП GNSS_ECEF_VX_STD, GNSS_ECEF_VY_STD, GNSS_ECEF_VZ_STD.
+15.11.2019 - дНАЮБКЕММЮ ОНДЕПФЙЮ ПЮГАНПЮ АХМЮПМШУ ДЮММШУ SPAN (NovAtel). дКЪ ЩРНЦН ПЪДНЛ Я ОПНЦПЮЛЛНИ
+             ДНКФМЮ КЕФЮРЭ ОПНЦПЮЛЛЮ Parsing_NovAtel_data.m Х ДХПЕЙРНПХЪ Я ТСМЙЖХЪЛХ Parsing_functions_for_NovAtel.
+           - еЯКХ ХЯОНКЭГСЕРЯЪ Б ЮКЦНПХРЛЕ АХМЮПМШЕ ДЮММШЕ SPAN (NovAtel), РН ДЕКЮЕРЯЪ ОНДЯРЮБЮ ParType_2=1000,
+             Х ХГ МЮЬЕЦН ОПНРНЙНКЮ *.txt ПЮГАХПЮЧРЯЪ РНКЭЙН ОЮПЮЛЕРПШ.
+21.11.2019 - еЯКХ ЛНДЕКХПНБЮМХЕ ОПНБНДХРЯЪ Я АХМЮПМШЛХ ДЮММШЛХ SPAN, ДНАЮБКЕМ СВЕР МЮКХВХЪ Б ДЮММШУ КНЦЮ BESTGNSSVEL.
+27.11.2019 - дНАЮБКЕММЮ ОНДДЕПФЙЮ ЯНБЛЕЯРХЛНЯРХ ПЮАНРШ ЛЮРКЮА ОПНЦПЮЛЛ БЕПЯХИ ДН ISON_v04_20191115.m Х ОПНЦПЮЛШ Read_ISON_Data_P
+28.11.2019 - дНАЮБКЕМЮ БШВХРЙЮ ОЮПЮЛЕРПЮ WS_reset_period.
+29.11.2019 - дНАЮБКЕМЮ БШВХРЙЮ ОЮПЮЛЕРПЮ Mag_auto_clb.
+           - Date ОЕПЕХЛЕМНБЮМН Б Mdec_date (ЙЮЙ Б ОПНЬХБЙЕ).
+04.12.2019 - б Udd ДНАЮБКЕМ ПЮГАНП ДЮММШУ Accel_pv(1:3,:) (acceleration in PV measuring point).
+14.01.2020 - дНАЮБКЕМЮ БШВХРЙЮ ОЮПЮЛЕРПЮ InitClbType
+21.01.2020 - хЯОПЮБКЕММЮ НЬХАЙЮ Б Matlab ОПНЦПЮЛЕ. нАУНД МСКЕИ ДКЪ ОПЮЛЕРПНБ STD_Vh_ext, STD_Vv_ext МСФМН
+             ДЕКЮРЭ Б НЯМНБМНИ ОПНЦПЮЛЛЕ, ВЕПЕГ ОЕПЕНОПЕДЕКЕМХЕ ОЮПЮЛЕРПЮ Velocity_constraints.
+27.01.2020 - оПХ БШВХРЙЕ ОЮПЮЛЕРПЮ Mag_auto_clb НОПЕДЕКЪЕРЯЪ ЕЦН ГМЮВЕМХЕ:
+             Mag_auto_clb=0 - ЮБРНЛЮРХВЕЯЙЮЪ ЙЮКХАПНБЙЮ ЛЮЦМХРНЛЕРПНБ НРЙКЧВЕМЮ;
+             Mag_auto_clb=1 - ЮБРНЛЮРХВЕЯЙЮЪ 2D ЙЮКХАПНБЙЮ ЛЮЦМХРНЛЕРПНБ;
+             Mag_auto_clb=2 - ЮБРНЛЮРХВЕЯЙЮЪ 3D ЙЮКХАПНБЙЮ ЛЮЦМХРНЛЕРПНБ.
+11.02.2020 - дНАЮБКЕМ ПЮГАНП ОЮПЮЛЕРПНБ:
+              kR_coord_rtk - йНЩТТХЖХЕМР СБЕКХВЕМХЪ ДХЯОЕПЯХХ ЬСЛЮ ОН ЙННПДХМЮРЮЛ Б ПЕФХЛЕ RTK
+              kR_V_rtk     - йНЩТТХЖХЕМР СБЕКХВЕМХЪ ДХЯОЕПЯХХ ЬСЛЮ ОН ЯЙНПНЯРЪЛ Б ПЕФХЛЕ RTK
+              kR_Ku_rtk    - йНЩТТХЖХЕМР СБЕКХВЕМХЪ ДХЯОЕПЯХХ ЬСЛЮ ОН ЙСПЯС Б ПЕФХЛЕ RTK
+04.03.2020 - б UDD ЦПСОЕ ⌠INS service data■ ДНАЮБКЕМ РХО ДЮММШУ 0x58 - KF velocity covariance:
+              East speed STD,  North speed STD, Vertical speed STD
+05.03.2020 - б UDD ЛЕРЙХ БПЕЛЕМХ ms_pos_prom, ms_vel_prom КНЦНБ BESTPOS, BESTVEL
+             ПЮГАХПЮЧРЯЪ ПЮГДЕКЭМН Р.Й. ms_vel_prom ЛНЦСР АШРЭ МЕ ГЮЙЮГЮМШ.
+17.03.2020 - дНАЮБКЕМЮ БШВХРЙЮ ОЮПЮЛЕРПЮ PDP_filter
+19.03.2020 - дНАЮБКЕМЮ БШВХРЙЮ ОЮПЮЛЕРПЮ COM5_data - бЮПХЮМР ДЮММШУ ОН COM5 (ОЯЕБДН ОНПР, ЙЮЙ ВЮЯРЭ COM4): (0) √ МЕР, (1) √ ОПХЕЛ ЙСПЯЮ (HDT NMEA)
+20.03.2020 - сДЮКЕМН ДСАКХПНБЮМХЕ БШВХЯКЕМХЪ latency_ms_pos_calc,latency_ms_vel_calc,latency_ms_head_calc
+           - оПХ НРЯСРЯРБХХ ТКЮЦЮ New_gps Б UDD, ГМЮВЕМХЪ ЩРНЦН ТКЮЦЮ Х ЛЕРЙХ БПЕЛЕМХ КНЦНБ
+             BESTPOS_log_index, BESTVEL_log_index,HEADING_log_index ОНДАХПЮЧРЯЪ ОН ХГЛЕМЕМХЧ ДЮММШУ ОПХЕЛМХЙЮ
+26.03.2020 - дНАЮБКЕМЮ БШВХРЙЮ МНБШУ ОЮПЮЛЕРПНБ ДКЪ ПЕФХЛЮ ZUPT: DUS_cut3 Х Freeze_PV
+06.04.2020 - оНОПЮБКЕМН: ОПХ НРЯСРЯРБХХ ТКЮЦЮ New_gps Б UDD, ГМЮВЕМХЪ ЩРНЦН ТКЮЦЮ Х ОНДАНП ЛЕРНЙ БПЕЛЕМХ КНЦНБ
+             ДЕКЮЕРЯЪ РНКЭЙН ОПХ Algorithm_type==1 (хмя)
+           - дКЪ ДЮММШУ IMU TGA (ParType=='P47') БШЯРЮБКЪЕРЯЪ Algorithm_type=4 (ЦХПНБЕПРХЙЮКЭ)
+28.04.2020 - дНАЮБКЕМ ПЮГАНП ОПНРНЙНКЮ P72 - IMU GAM data. бШЯРЮБКЪЕРЯЪ Algorithm_type=4 (ЦХПНБЕПРХЙЮКЭ)
+07.05.2020 - дНАЮБКЕМ ПЮГАНП ОПНРНЙНКЮ P73 - AHRSII Calibrated Data H2
+             (ОНГФЕ ОЕПЕХЛЕМНБЮМ Б MRU_SMC_Calibrated_Data Я ХГЛЕМЕМХЕЛ НЯЕИ Х ГМЮЙНБ ДЮММШУ)
+14.05.2020 - хЯОПЮБКЕМЮ БШВХРЙЮ ЙБЮРЕПМХНМЮ Lk_prom ХГ ДЮММШУ UDD
+20.05.2020 - оПХ НРЯСРЯРБХХ ТКЮЦЮ New_gps Б UDD, ГМЮВЕМХЪ ЩРНЦН ТКЮЦЮ Х ОНДАНП ЛЕРНЙ БПЕЛЕМХ КНЦНБ
+             ДЕКЮЕРЯЪ РЮЙФЕ ОПХ Ext_GNSS_receiver_protocol>0 (ПЮАНРЮ Я БМЕЬЕХЛ ОПХЕЛМХЙНЛ).
+           - дНАЮБКЕМЮ БШЯРЮБЙЮ ТКЮЦЮ AHRS_graphics=true Х ДКЪ ОПНРНЙНКЮ P46 (UDD)
+             ЕЯКХ РХО ЮКЦНПХРЛЮ МЕ хмя, Х МЕР БМЕЬМЕЦН ОПХЕЛМХЙЮ.
+21.05.2020 - б ЯБЪГХ Я ХГЛЕМЕМХЕЛ НЯЕИ Х ГМЮЙНБ ДЮММШУ Б ТНПЛЮРЕ P73 - MRU_SMC_Calibrated_Data
+             ОПНХГБНДХРЯЪ ОПХБЕДЕМХЕ ЛЮЯЯХБНБ ДЮММШУ Й НАШВМШЛ НЯЪЛ Х ГМЮЙЮЛ
+27.05.2020 - дНАЮБКЕМ ПЮГАНП ОЮПЮЛЕРПНБ ДКЪ НЖЕМЙХ лй дсяНБ:
+			   * estimate_gyro_scale - НЖЕМЙЮ лй дся  (0 - БШЙК. 1 - БЙК.)
+			   * Sw_k_init           - МЮВ.СЯКНБХЪ ДКЪ ЩК-РНБ ЛЮРПХЖШ P0 ДКЪ лй дся
+               * Sw_k                - яйн ОНПНФДЮЧЫЕЦН АЕКНЦН ЬСЛЮ ДКЪ лй дся
+29.05.2020 - дНАЮБКЕМ ПЮГАНП ОЮПЮЛЕРПЮ kA_ext
+01.06.2020 - б UDD ЦПСОЕ ⌠Aiding data■ ДНАЮБКЕМ РХО ДЮММШУ 0x6A - GNNS antennas position:
+              Primary antenna, Right
+              Primary antenna, Forward
+              Primary antenna, Up
+              Secondary antenna, Right
+              Secondary antenna, Forward
+              Secondary antenna, Up
+           - оНКЕ "New_Aiding_Data" ЯНДЕПФХР ХМТНПЛЮЖХЧ Н МНБШУ ДЮММШУ "GNNS antennas position"
+26.06.2020 - дКЪ ЯНБЛЕЯРХЛНЯРХ ЯН ЯРЮПШЛХ ОПНЦПЮЛЛЮЛХ Pointer_*.m ДНАЮБКЕМ Angl_var=0
+15.07.2020 - нАМНБКЕМ ТНПЛЮР "MRU SMC Calibrated Data"
+              * ОПНРНЙНК ХГЛЕМХК ЯБНИ ОНПЪДЙНБШИ МНЛЕП МЮ P67
+              * ДНАЮБКЕМН
+                  - СЯЙНПЕМХЕ Heave  ДКЪ ДБСУ РНВЕЙ
+                  - watchdog ЯВЕРВХЙ ДКЪ ДБСУ КЕАЕДНЙ
+04.08.2020 - оПХ НРЯСРЯРБХХ ТКЮЦЮ New_gps Б UDD, ОПНБЕПЪЕРЯЪ МЮКХВХЕ ЙННПДХМЮР Х ЯЙНПНЯРЕИ ямя,
+             Х РНКЭЙН ОПХ ХУ МЮКХВХХ ОНДАХПЮЧРЯЪ ГМЮВЕМХЪ New_gps Х ЛЕРНЙ БПЕЛЕМХ КНЦНБ
+             BESTPOS_log_index, BESTVEL_log_index ОН ХГЛЕМЕМХЧ ДЮММШУ ОПХЕЛМХЙЮ
+           - б ДНОНКМЕМХЕ Й ТКЮЦЮЛ CV_prom, CV_gps ДНАЮБКЕМШ НРДЕКЭМШЕ ТКЮЦХ МЮКХВХЪ ЙННПДХМЮР
+             C_prom, C_gps Х ЯЙНПНЯРЕИ V_prom, V_gps Б ОПНРНЙНКЕ ГЮОХЯЮММШУ ДЮММШУ.
+05.08.2020 - дНАЮБКЕМ ПЮГАНП МНБШУ ДЮММШУ UDD 0x28 - Differential pressure, in mbar
+20.08.2020 - б ТНПЛЮРЕ WS-PD (P66) ДНАЮБКЕМН ПЮГКНФЕМХЕ ЦНПХГНМРЮКЭМНИ ЯЙНПНЯРХ Vh_gps
+             МЮ ЯЕБЕПМСЧ Х БНЯРНВМСЧ ЯНЯРНБКЪЧЫХЕ Vn_gps Х Ve_gps
+16.09.2020 - дНАЮБКЕМ ПЮГАНП МНБШУ ДЮММШУ UDD 0x59 - Calculation time, in usec
+16.10.2020 - оНЯКЕ ХЯОПЮБКЕМХЪ АЮЦЮ Б НАНКНВЙЕ, ХГЛЕМЕМ МНЛЕП ТНПЛЮРЮ "MRU SMC Calibrated Data"
+             Я P67 МЮ P73 (МНБНЕ МЮГБЮМХЕ ТНПЛЮРЮ - "ABB Smart Winch Drive")
+19.10.2020 - б ОПНЬХБЙЕ A2IMU v3.4.6.1 ДКЪ ТНПЛЮРЮ "ABB Smart Winch Drive"
+             ЙННПДХМЮРШ X, Y, Z ДКЪ remote Heave ГЮДЮЧРЯЪ Б МЮЬХУ НЯЪУ (X - БОПЮБН, Y - БОЕПЕД, Z - ББЕПУ), Ю МЕ Б НЯЪУ SMC
+12.11.2020 - б UDD ЦПСОЕ ⌠Aiding data■ ДНАЮБКЕМ РХО ДЮММШУ 0x6B - Ambient Air Data:
+                Temperature, degC
+				Altitude, m
+			    Pressure, Pa
+           - оНКЕ "New_Aiding_Data" ЯНДЕПФХР ХМТНПЛЮЖХЧ Н МНБШУ ДЮММШУ "Ambient Air Data"
+           - йЮКХАПНБНВМШЕ ЙНЩТТХЖХЕМРШ АЮПНЛЕРПЮ НАЗЪКЕМШ ЙЮЙ ЦКНАЮКЭМШЕ ОЕПЕЛЕММШЕ ДКЪ ХЯОНКЭГНБЮМХЪ Б
+             ТСМЙЖХХ "baromether_get_temperature_pressure"
+24.12.2020 - б UDD ЦПСОЕ ⌠Aiding data■ ДНАЮБКЕМ РХО ДЮММШУ 0x1B - Velocities HR:
+                East speed, m/s
+                North speed, m/s
+                Vertical speed, m/s
+13.01.2021 - дНАЮБКЕМ ПЮГАНП ОПНРНЙНКЮ P70 - MRU Calibrated HR Data
+13.01.2021_1 бЛЕЯРН ДБСУ ЙНМЯРПСЙЖХИ case ДКЪ ПЮГАНПЮ ДЮММШУ ОН ParType Х ParType_2 ХЯОНКЭГСЕРЯЪ РНКЭЙН НДМЮ.
+14.01.2020 - нАУНД БШВХРЙХ ДЮММШУ ПЕЮКЭМНЦН ОСЯЙЮ, ДКЪ ЛНДЕКХПНБЮМХЪ ЯХЦМЮКНБ ЦХПНЯЙНОНБ, ЮЙЯЕКЕПНЛЕРПНБ, ЛЮЦМХРНЛЕРПНБ
+             Б НЯМНБМНИ ОПНЦПЮЛЛЕ ОПХ SimulatedData>0.
+15.01.2020 - б UDD ЦПСОЕ ⌠Aiding data■ ДНАЮБКЕМ РХО ДЮММШУ 0x6C - Altitude external:
+                Altitude,     m
+                Altitude STD, m
+           - оНКЕ "New_Aiding_Data" ЯНДЕПФХР ХМТНПЛЮЖХЧ Н МНБШУ ДЮММШУ "Altitude external"
+29.01.2020 - хЯОПЮБКЕММЮ НЬХАЙЮ. оЮПЮЛЕРП Algorithm_type МЕ СЯРЮМЮБКХБЮКЯЪ Б 2 ОПХ ОПНВХРЮМНЛ РЕЙЯРЕ РХОЮ ЮКЦНПХРЛЮ "AHRS".
+11.02.2021 - бЕПЯХЪ ОПНЬХБЙХ INS-U (ISON_fw) ГЮЛЕМЪЕРЯЪ МЮ ЮМЮКНЦХВМСЧ БЕПЯХЧ ОПНЬХБЙХ A2IMU.
+25.02.2021 - дНАЮБКЕМ ПЮГАНП МНБШУ ДЮММШУ UDD 0x29 - Gyro data filtered, in deg/s
+01.03.2021 - дНАЮБКЕМ ПЮГАНП ОЮПЮЛЕРПНБ:
+              Air_speed_sourse = 0;
+              V_AIR_cut = 5; (Л/Я)
+              DiffPress_bandwidth = 0; (цЖ)
+04.03.2021 - оЕПЕХЛЕМНБЮМШ ОЮПЮЛЕРПШ:
+                V_AIR_cut           -> V_air_cut
+				DiffPress_bandwidth -> T_air_offset
+10.03.2021 - дНАЮБКЕМ ПЮГАНП МНБШУ ЦПСО Б ТНПЛЮРЕ ДЮММШУ UDD:
+             0x80  Static pressure      (P_bar_prom)                  , Pa
+             0x81  Dynamic pressure     (diff_P_bar_prom)             , mBar
+			 0x82  Static Pressure Over Total Pressure (P_static_to_total_prom)
+			 0x83  Pressure altitude    (H_press_prom)                , m
+			 0x84  Baro-corrected pressure altitude (BCH_press_prom)  , m
+			 0x85  Calibrated airspeed  (V_CAS_prom)                  , m/s
+			 0x86  True airspeed        (V_TAS_prom)                  , m/s
+             0x87  Mach number          (Mach_prom)                   , M
+             0x88  Angle of attack	(AOA_prom)                    , deg
+			 0x89  Rate of climb        (Rate_of_climb_prom)          , m/s
+			 0x8a  Wind speed(E,N,U)    (Wind_speed_prom)             , m/s
+			 0x8b  Air density          (Air_density_prom)            , kg/m3
+			 0x8c  Outside air temperature (Air_temperature_prom)     , degC
+29.03.2021 - пЮГДЕКЕМЮ БШВХРЙЮ ДЮММШУ, ГЮОХЯЮММШЕ Б UDD:
+             0x28 diff_P_bar_prom (mbar)  Х  0x81 P_dynamic_prom (Pa)
+28.04.2021 - дНАЮБКЕМ ПЮГАНП ОЮПЮЛЕРПЮ:
+               * KF_restart_delay - ЛЮЙЯХЛЮКЭМН ДНОСЯРХЛНЕ БПЕЛЪ НРЙКЧВЕМХИ ХГЛЕПЕМХИ МЕБЪГЙНИ Б нтй,
+			                        ОНЯКЕ ЙНРНПНЦН ОПНХЯУНДХР ПЕЯРЮПР ТХКЭРПЮ (ЯЕЙ*10).
+19.05.2021 - дНАЮБКЕМ ПЮГАНП ОЮПЮЛЕРПЮ:
+               *k_Sigma_velocity - ОНПНЦ ДКЪ ЙБЮДПЮРХВМНИ ТНПЛШ МЕБЪГЙХ ОН ЯЙНПНЯРХ ДКЪ нтй:
+			                       Wind, DVL, Odomether, Velocity Constains
+21.05.2021 - оПХ НРЯСРЯРБХХ ТКЮЦЮ New_gps ОПНХМХЖХЮКХГХПНБЮМШ ЛЮЯЯХБШ BESTPOS_log_index,
+             BESTVEL_log_index, HEADING_log_index, pps_index
+15.06.2021 - дНАЮБКЕМ ПЮГАНП ДЮММШУ UDD -  "Altitude, vertical velocity" 0x1A:
+               Altitude, m
+               Vertical velocity, m/s
+12.07.2021 - дНАЮБКЕМ ПЮГАНП МНБНИ ЦПСОШ "0x6e" Б ТНПЛЮРЕ ДЮММШУ UDD:
+               Latitude_ext
+               Longitude_ext
+               Latitude_ext_STD
+               Longitude_ext_STD
+               Latency_ext_pos
+14.07.2021 - дНАЮБКЕМ ПЮГАНП МНБШУ ЦПСО Б ТНПЛЮРЕ ДЮММШУ UDD:
+                  0x2b  Tm_c_prom(1:9,:)
+                  0x2c  Hm_0_prom(1:3,:)
+		   - ПЮГАНП ЦПСООШ "0x6e" Б ТНПЛЮРЕ ДЮММШУ UDD ОЕПЕМЕЯЕМ БШЬЕ Б ОНПЪДЙС МСЛЕПЮЖХХ "switch"
+		   - оЮПЮЛЕРПШ ХГЛЕМХКХ ЯБНЕ ЯРЮМДЮПРМНЕ ГМЮВЕМХЕ
+                 fhss_LP=0.02;       (АШКН 0.05)  % вЮЯРНРЮ Б цЖ
+                 Power_fft_min = 40; (АШКН 10)    % оНПНЦ ЛНЫМНЯРХ ДКЪ СЦКНБ Б аот
+           - нАУНД МСКЪ ДКЪ ОЮПЮЛЕРПЮ Power_fft_HSS ОЕПЕМЕЯЕМ Б НЯМНБМСЧ ОПНЦПЮЛЛС
+14.07.2021 - б ЦПСООЕ ДЮММШУ "0x6c" ОЕПЕХЛЕМНБЮМШ МЮГБЮМХЪ ЛЮЯЯХБНБ:
+             *  Altitude_1_ext      МЮ   Altitude_ext
+             *  Altitude_1_ext_STD  МЮ   Altitude_ext_STD
+27.07.2021 - дНАЮБКЕМ ПЮГАНП МНБШУ ЦПСО Б ТНПЛЮРЕ ДЮММШУ UDD:
+                  0x5a  USW2 - Unit status word 2
+                  0x8d  ADU  - Air Data Unit status
+19.08.2021 - сЯЙНПЕМЮ ПЮАНРЮ ОПНЦПЮЛЛШ. сАПЮМШ ЖХЙКШ ОПХ ГЮОНКМЕМХХ ЛЮЯЯХБНБ.
+             оПНБЕПЙЮ МЮ РЕЯРЕ ДКХРЕКЭМНЯРЭЧ 1000 ЯЕЙ(200 Hz) ОНЙЮГЮКЮ ПЕГСКЭРЮР
+               Total Time = 130.032 s  - ЯРЮПЮЪ ОПНЦПЮЛЛЮ
+			   Total Time = 6.537 s	   - МНБЮЪ ОПНЦПЮЛЛЮ
+26.08.2021 - дНАЮБКЕМ ПЮГАНП МНБНИ ЦПСООШ Б UDD: 0x0a  Quaternion of orientation HR
+31.08.2021 - дНАЮБКЕМ ПЮГАНП МНБНИ ЦПСООШ Б UDD: 0x4a - GNSS extended info
+29.09.2021 - дНАЮБКЕМ ПЮГАНП ОЮПЮЛЕРПЮ HDOP_threshold
+05.10.2021 - дНАЮБКЕМ ПЮГАНП МНБШУ ЦПСО Б ТНПЛЮРЕ ДЮММШУ UDD:
+                  0x4b - INS receiver validity
+                  0x6f - DAGR position and velocity
+02.11.2021 - дНАЮБКЕМ ПЮГАНП ОЮПЮЛЕРПЮ DAGR_threshold
+12.11.2021 - бШВХРШБЮЕР НАЮ БЮПХЮМРЮ МЮГБЮМХЪ ОЮПЮЛЕРПЮ Air_speed_sourse Х ХЯОПЮБКЕММНЕ Air_speed_source
+17.11.2021 - оНКЕ "New_Aiding_Data" ЯНДЕПФХР ХМТНПЛЮЖХЧ Н МНБШУ ДЮММШУ "Ground speed"
+09.12.2021 - б ТНПЛЮРЮУ ДЮММШУ, Б ЙНРНПШУ ЕЯРЭ pos_type_gps, НМ ЙНОХПСЕРЯЪ Б
+             ЛЮЯЯХБ pos_type_gps_original. еЯКХ АСДЕР НРЯСРЯБНБЮРЭ GNSS_info1, РН
+             pos_type_gps_original АСДЕР ОПХБЕДЕМ Й БХДС ЙЮЙ АШ НМ АШК ПЮГНАПЮМ ХГ
+             GNSS_info1.
+21.12.2021 - дНАЮБКЕМ ПЮГАНП МНБНИ ЦПСООШ Б UDD: 0x1d  Body frame velocities
+10.01.2022 - оНПЮБКЕМЮ БШВХРЙЮ АНКЕЕ ЯРЮПНИ ЬЮОЙХ, Б ЙНРНПНИ ЕЫЕ МЕР ЯРПНЙХ Я Air_speed_source
+14.01.2022 - дНАЮБКЕМ ПЮЯВЕР БПЕЛЪ GPS ХГ UTC, ЕЯКХ ЕЦН МЕР Б ОПНРНЙНКЕ.
+             рПЕАСЧРЯЪ МНБШЕ ТСМЙЖХХ ISON_function\WWM:
+			   TIMECONV_DetermineUTCOffset.m
+			   TIMECONV_GetGPSTimeFromJulianDate.m
+			   TIMECONV_GetGPSTimeFromUTCTime.m
+			   TIMECONV_GetJulianDateFromUTCTime.m
+		   - дНАЮБКЕМ ПЮЯВЕР ЯЙНПНЯРХ ямя ХГ ЙННПДХМЮР, ЕЯКХ ХУ МЕР Б ОПНРНЙНКЕ.
+25.01.2022 - дНАЮБКЕМЮ БШВХРЙЮ ЦПСООШ ОЮПЮЛЕРПНБ low_dynamics_Gyro_cut1,
+             low_dynamics_Gyro_cut2, low_dynamics_A_cut.
+           - мЮБЕДЕМ ОНПЪДНЙ Я ОНДЯРЮМНБЙНИ A2IMU БЕПЯХХ ОПНЬХБЙХ ДКЪ ДПСЦХУ РХОНБ ОПНЬХБЙХ
+             (ISON_fw, ISON_firmware_version)
+02.02.2022 - оПХ ПЮАНПЕ ЛЮЯЯХБЮ PrometheusData САПЮМН ЪБМНЕ СЙЮГЮМХЕ ПЮГЛЕПЮ ОПХЯБЮХБЮЕЛШУ ДЮММШУ
+             РХОЮ DUS(1:3,:) = ВРНАШ ЛНФМН АШКН НАПЮАЮРШБЮРЭ НДМНИ ОПНЦПЮЛЛНИ ЦПСООС ТЮИКНБ
+             ДЮММШУ ПЮГМНИ ДКХМШ.
+28.02.2022 - дНАЮБКЕМЮ БШВХРЙЮ МНБНЦН ОЮПЮЛЕРПЮ GNSS_vel_var
+21.12.2021_1 дНАЮБКЕМ ПЮГАНП МНБНИ ЦПСООШ Б UDD: 0xa0 Sideslip external
+             Х ПЮГАНП АХРЮ #15 New_Aiding_Data (Sideslip_ext_bit).
+16.03.2022 - дНАЮБКЕМЮ БШВХРЙЮ МНБШУ ОЮПЮЛЕРПНБ Tf_bar, Press_alt_correct_threshold,
+             T_VAIR_LP, Air_speed_correct_threshold.
+26.03.2022 - дНАЮБКЕМ ПЮГАНП МНБНИ ЦПСООШ Б UDD: 0x0b  AHRS orientation angles
+07.04.2022 - дНАЮБКЕМ ПЮГАНП МНБНИ ЦПСООШ Б UDD: 0x5c  KF pitch, roll covariance
+13.04.2022 - дНАЮБКЕМ ПЮГАНП 6 АХРЮ Б ЛЮЯЯХБЕ New_gps - ПЕЦХЯРПЮЖХЪ ОПХЕЛЮ
+             БЮКХДМНЦН Х МЕ БЮКХДМНЦН PPS
+22.04.2022 - дНАЮБКЕМ ПЮГАНП МНБНИ ЦПСООШ Б UDD: 0x0c AHRS Quaternion of orientation
+28.04.2021 - дНАЮБКЕМ ПЮГАНП МНБНИ ЦПСООШ Б UDD: 0x49 - PPPSEED status
+05.05.2021 - дНАЮБКЕМ ПЮГАНП МНБНИ ЦПСООШ Б UDD: 0x1e - ENU linear acceleration
+12.05.2022 - дНАЮБКЕМЮ БШВХРЙЮ МНБНЦН ОЮПЮЛЕРПЮ Press_sensor_bias
+14.06.2022 - дНАЮБКЕМ ПЮГАНП ОЮПЮЛЕРПЮ:
+               * KF_restart_smooth - ОКЮБМШИ ПЕЯРЮПР хмя МЮ ЙННПДХМЮРШ
+			     Х ЯЙНПНЯРХ ОПХЕЛМХЙЮ (0 √ disabled, 1 √ enabled)
+17.06.2022 - нРЙНППЕЙРХПНБЮМН ХГЛЕМЕМХЕ НР 12.05.2022 ЕЯКХ Б ЬЮОЙЕ ОПНРНЙНКЮ -
+             ЙЮКХАПНБНВМШЕ ЙНЩТТХЖХЕМРШ ACi АЮПНЛЕРПЮ BMP180
+29.06.2022 - хЯОПЮБКЕМЮ БШВХРЙЮ ЬЮОЙХ ОПНРНЙНКЮ, Б ЙНРНПНЛ ЕЫЕ МЕ АШКН ЯРПНЙХ Я Air_speed_source
+30.06.2022 - дНАЮБКЕМЮ БШВХРЙЮ МНБШУ ОЮПЮЛЕРПНБ dDUS_ini_threshold, k_Sw_init
+           - нАМНБКЕМЮ ОНДЯРЮМНБЙЮ A2IMU БЕПЯХХ ОПНЬХБЙХ ISON_fw ДКЪ ДПСЦХУ РХОНБ ОПНЬХБЙХ.
+21.07.2022 - дНАЮБКЕМЮ БШВХРЙЮ МНБШУ ОЮПЮЛЕРПНБ DiffPress_var, DiffPress_autozero
+29.07.2022 - нАМНБКЕМЮ ОНДЯРЮМНБЙЮ A2IMU БЕПЯХХ ОПНЬХБЙХ ISON_fw ДКЪ ОПНЬХБНЙ AHRS10.
+09.08.2022 - хЯОПЮБКЕМЮ НЬХАЙЮ. б ОПНРНЙНКЕ P73 - ABB Smart Winch Drive (old MRU SMC Calibrated Data)
+             МЕ ОПЮБХКЭМН БШВХРШБЮКНЯЭ ДЮБКЕМХЕ (P_bar_prom) Х АЮПНЛЕРПХВЕЯЙЮЪ БШЯНРЮ(h_bar_prom)
+22.08.2022 - дНАЮБКЕМ ПЮГАНП ЦПСОШ Б ТНПЛЮРЕ ДЮММШУ UDD:
+                  0x1f - Significant Heave Rate
+24.08.2022 - дНАЮБКЕМН ВРЕМХЕ МНБШУ ОЮПЮЛЕРПНБ Spec_algorithm, Spec_algorithm_prm1, Spec_algorithm_prm2
+27.09.2022 - дНАЮБКЕМН ВРЕМХЕ МНБНЦН ОЮПЮЛЕРПЮ T_dKKmag
+17.10.2022 - дНАЮБКЕМ ПЮГАНП ЦПСОШ Б ТНПЛЮРЕ ДЮММШУ UDD:
+                  0x97 - IMU data filtered
+09.12.2022 - дНАЮБКЕМ ПЮГАНП ОЮПЮЛЕРПНБ:
+                ro_tg(3x1) - оНКНФЕМХЕ tunnel guide(center of rotation) НРМНЯХРЕКЭМН ахмя Б НЯЪУ НАЗЕЙРЮ (m)
+                STD_Vh_tg - яйн ЬСЛЮ БХПРСЮКЭМНЦН ХГЛЕПЕМХЪ ЦНПХГНМРЮКЭМНИ ЯЙНПНЯРХ ДБХФЕМХЪ Б ПЕФХЛЕ tunnel guide (m/s)
+                STD_Vv_tg - яйн ЬСЛЮ БХПРСЮКЭМНЦН ХГЛЕПЕМХЪ БЕПРХЙЮКЭМНИ  ЯЙНПНЯРХ ДБХФЕМХЪ Б ПЕФХЛЕ tunnel guide (m/s)
+                tunnel guide(tg) it's velocity constrains
+26.12.2022 - дНАЮБКЕМН ВРЕМХЕ МНБНЦН ОПНЕЙРЮ INSTC Б ЬЮОЙЕ txt ТЮИКЮ.
+05.01.2023 - дНАЮБКЕМ ПЮГАНП ЦПСО Б ТНПЛЮРЕ ДЮММШУ UDD:
+                  0x4c - GNSS/INS Receiver clock
+				     Receiver clock bias, m
+                     Receiver clock bias rate, m/s
+				  0x4d - GNSS/INS Satellites
+				     Satellites available
+                     Satellites involved
+12.01.2023 - хЯОПЮБКЕМШ НЬХАЙХ ГЮ 05.01.2023:
+               1) case 0x4c АШК ГЮОХЯЮМ ЙХПХККХЖЕИ.
+   			   2) лЮЯЯХБШ ОЕПЕХЛЕМНБЮМШ
+					* GNSS_INS_Receiver_clock_bias_prom       МЮ   dtr_prom
+                    * GNSS_INS_Receiver_clock_bias_rate_prom  МЮ   ddtr_prom
+                    * GNSS_INS_Satellites_available_prom      МЮ   PRNs_prom
+                    * GNSS_INS_Satellites_involved_prom       МЮ   PRNs_use_prom
+08.02.2022 - дНАЮБКЕМН ВРЕМХЕ МНБШУ ОЮПЮЛЕРПНБ Grid_ref_system, Latitude_of_origin,
+             Longitude_of_origin, FE_Lambert1SP, FN_Lambert1SP, SF_Lambert1SP
+09.02.2022 - дНАЮБКЕМ ПЮГАНП ЦПСОО Б ТНПЛЮРЕ ДЮММШУ UDD:
+					0xb0 - ECEF coordinates
+					0xb1 - ECEF velocities
+					0xb2 - UTM/IGRS projection
+22.02.2023 - дНАЮБКЕМ ПЮГАНП ЦПСОШ Б ТНПЛЮРЕ ДЮММШУ UDD:
+                  0x5d - Magnetic heading uncertainty
+17.03.2023 - дНАЮБКЕМ ПЮГАНП ЦПСОО Б ТНПЛЮРЕ ДЮММШУ UDD:
+				  0x1Я - Delayed Time Heave
+				  0x2a - HG4930 IMU status
+20.03.2023 - дНАЮБКЕМ ПЮГАНП ЦПСОО Б ТНПЛЮРЕ ДЮММШУ UDD:
+				  0x4e - Receiver clock bias offset (GLO-GPS)
+				  0x4f - Indicator of new update of GPS data
+07.04.2023 - дКЪ ОПНРНЙНКНБ, Б ЙНРНПШУ МЕР ГМЮВЕМХИ ГЮДЕПФЙХ ЯЙНПНЯРХ ямя latency_gps_vel
+             НМЮ МЕ ГЮЛЕМЪЕРЯЪ МСКЪЛХ, ОНРНЛС ВРН ЩРН Х РЮЙ ДЕКЮЕРЯЪ Б НЯМНБМНИ ОПНЦПЮЛЛЕ,
+             МН РЮЛ ЕЯРЭ Х БШДЮВЮ ЯННРБЕРЯРБСЧЫЕЦН ОПЕДСОПЕФДЕМХЪ.
+20.04.2023 - дНАЮБКЕМ ПЮГАНП ЦПСОШ Б ТНПЛЮРЕ ДЮММШУ UDD:
+                  0x0d - Grid Heading
+25.04.2023 - дНАЮБКЕМЮ БШВХРЙЮ МНБНЦН ОЮПЮЛЕРПЮ IA_Gyro_bias_comp
+             сВЕР ЯЛЕЫЕМХЪ МСКЪ, НОПЕДЕКЪЕЛНЦН ОПХ МЮВЮКЭМНИ БШЯРЮБЙЕ, Б БШУНДМШУ ДЮММШУ ЦХПНЯЙНОНБ
+            (0 √ СВЕР, 1 - СВЕРЮ МЕР)
+27.04.2023 - дНАЮБКЕМ ПЮГАНП МНБНИ ЦПСООШ Б ТНПЛЮРЕ ДЮММШУ UDD:
+                  0x98  Gyro w/o bias compensation
+28.04.2023 - дНАЮБКЕМ ПЮГАНП МНБНИ ЦПСООШ Б ТНПЛЮРЕ ДЮММШУ UDD:
+                  0x47  GNSS diff age
+03.05.2023 - пЮГДЕКЕМН ДЕЙНДХПНБЮМХЕ ЯКСФЕАМНИ ХМТНПЛЮЖХХ ОПХЕЛМХЙЮ ямя
+             Б ЛЮЯЯХБЕ ext_sol_gps Х НРДЕКЭМН Б ЛЮЯЯХБЮУ Galileo_BeiDou, Glonass_GPS.
+           - хЯОПЮБКЕМН ДЕЙНДХПНБЮМХЕ ЯКСФЕАМНИ ХМТНПЛЮЖХХ ОПХЕЛМХЙЮ ямя Б GNSS_info (GNSS_info2):
+             ext_sol_gps ЕЯРЭ РНКЭЙН Б НВЕМЭ ЯРЮПШУ ОПНРНЙНКЮУ (ext_info=0),
+             Ю Б МНБШУ - iono_corr (Pseudorange iono correction).
+29.05.2023 - дНАЮБКЕМЮ БШВХРЙЮ МНБНЦН ОЮПЮЛЕРПЮ Input_fft_HSS.
+             бШАНП БУНДМШУ ЯХЦМЮКНБ ДКЪ аот (0 - ЯХЦМЮКШ ЮЙЯЕКЕПНЛЕРПНБ, 1 - ЯХЦМЮКШ ЯЙНПНЯРЕИ)		 
+07.07.2023 - дНАЮБКЕМН ВРЕМХЕ МНБНЦН ОЮПЮЛЕРПЮ Spec_algorithm_prm3
